@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 #ignore thumbnails created by windows
 Thumbs.db
@@ -24,6 +25,8 @@ Thumbs.db
 *.sbr
 .metadata/*
 .settings/*
+=======
+>>>>>>> 00c5c08d3382cf3fb3462be9127d88fd02b76460
 *.class
 
 # Mobile Tools for Java (J2ME)
@@ -35,4 +38,8 @@ Thumbs.db
 *.ear
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+<<<<<<< HEAD
 hs_err_pid*
+=======
+hs_err_pid*
+>>>>>>> 00c5c08d3382cf3fb3462be9127d88fd02b76460
