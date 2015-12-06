@@ -19,7 +19,7 @@ public class PreviewPanel extends JPanel {
 	// quick and dirty...we don't need super duper performance so we just
 	// repaint everything since it is fast enough
 	public void RefreshView(CardSide cardSide) {
-		_images.clear();  // keeping this because sometimes we have to manually generate tests (yes, to lazy to automate tests right now)
+		//_images.clear();  // keeping this because sometimes we have to manually generate tests (yes, to lazy to automate tests right now)
 		_images = cardSide.getImageItems();
 		repaint();
 	}

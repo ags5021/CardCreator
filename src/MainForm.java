@@ -164,9 +164,9 @@ public class MainForm extends JFrame implements ActionListener {
 		this.setLocation(locX, locY);
 	}
 
+	Card card = new Card();
 	public void SendImage(BufferedImage img, int height, int width) {
-		Card card = new Card();
-		card.AddFront(img, height, width);
+		
 		card.AddFront(img, height, width);
 		
 		panelPreview.RefreshView(card.getFront());
