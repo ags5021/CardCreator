@@ -30,6 +30,10 @@ import java.awt.event.ComponentEvent;
 import java.awt.Dimension;
 
 public class MainForm extends JFrame implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6969503544294911223L;
 	private int sizeX = 300;
 	private int sizeY = 300;
 	private int locX = 300;
@@ -115,8 +119,9 @@ public class MainForm extends JFrame implements ActionListener {
 		JButton btnNewButton_1 = new JButton("Send to new frame");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				new ImageSnip("D:/Projects/Arabic/FrequencyDictParser/workspace/PDFParser/images/screenshot.png").setVisible(true);
+				new ImageSnip("D:/Projects/Arabic/FrequencyDictParser/workspace/CardCreator/images/screenshot.png").setVisible(true);
 			}
+			
 		});
 		panel_1.add(btnNewButton_1);
 		
