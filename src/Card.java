@@ -7,6 +7,11 @@ public class Card {
 	
 	private int _id = 0;
 	
+	public Card(int id)
+	{
+		_id = id;
+	}
+	
 	public void AddFront(Image img, int height, int width)
 	{
 		_front.AddImage(img, height, width);

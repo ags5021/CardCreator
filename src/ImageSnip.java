@@ -14,6 +14,7 @@ public class ImageSnip extends JFrame {
 	
 	JPanel panel;
 	public ImageSnip(String file, MainForm mainForm) {
+		setMinimumSize(new Dimension(70, 70));
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		

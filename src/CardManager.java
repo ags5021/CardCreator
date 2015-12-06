@@ -4,6 +4,7 @@ public class CardManager {
 	private static CardManager instance = null;
 	
 	private static ArrayList<Card> _cards = new ArrayList<Card>();
+	private static int currentCard = 0;
 	
 	protected CardManager() {
 		// Exists only to defeat instantiation.
@@ -29,10 +30,24 @@ public class CardManager {
 		return null;
 	}
 	
-	public static void AddCard(Card card)
+	public static Card getCurrentCard()
+	{
+		return getCard(CardManager.currentCard);
+	}
+	
+	public static void AddCard()
 	{
 		//TODO: CHECK IF THAT ID ALREADY EXISTS
-		_cards.add(card);
+		CardManager.currentCard =+ 1; //increment the ID, yo
+		_cards.add(new Card(CardManager.currentCard));
+	}
+
+	public static int getCurrentCardID() {
+		return currentCard;
+	}
+
+	public static void setCurrentCardID(int currentCard) {
+		CardManager.currentCard = currentCard;
 	}
 	
 }

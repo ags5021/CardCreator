@@ -31,6 +31,8 @@ import java.awt.image.BufferedImage;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.Dimension;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 public class MainForm extends JFrame implements ActionListener {
 	/**
@@ -46,13 +48,16 @@ public class MainForm extends JFrame implements ActionListener {
 	private final String WINDOW_SIZE_Y = "windowSizeY";
 	private final String WINDOW_LOCATION_X = "windowLocationX";
 	private final String WINDOW_LOCATION_Y = "windowLocationY";
+	private final String CURRENT_CARD_ID = "currentCardID";
 
 	private String executionPath = System.getProperty("user.dir");
 	private static MainForm _mainForm;
 
-	private PreviewPanel panelPreview = new PreviewPanel();
+	private boolean frontview = true;
 
-	
+	private PreviewPanel panelPreview = new PreviewPanel();
+	private JLabel lblView;
+
 	public MainForm() {
 		_mainForm = this;
 		setMinimumSize(new Dimension(50, 50));
@@ -75,6 +80,7 @@ public class MainForm extends JFrame implements ActionListener {
 					props.setProperty(WINDOW_SIZE_Y, Integer.toString(getHeight()));
 					props.setProperty(WINDOW_LOCATION_X, Integer.toString((int) getLocation().getX()));
 					props.setProperty(WINDOW_LOCATION_Y, Integer.toString((int) getLocation().getY()));
+					props.setProperty(CURRENT_CARD_ID, Integer.toString((int) CardManager.getCurrentCardID()));
 
 					FileWriter writer = new FileWriter(configFile);
 					props.store(writer, "application settings");
@@ -91,47 +97,62 @@ public class MainForm extends JFrame implements ActionListener {
 
 		JPanel panelControls = new JPanel();
 		getContentPane().add(panelControls, BorderLayout.NORTH);
-		
-				JButton btnNewButton = new JButton("New button");
-				panelControls.add(btnNewButton);
+
+		JButton btnNewButton = new JButton("New Card");
+		panelControls.add(btnNewButton);
+
+		JButton btnNewButton_1 = new JButton("SaveCard");
+		panelControls.add(btnNewButton_1);
+
+		JButton btnToggleView = new JButton("Toggle View");
+		btnToggleView.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ToggleView();
+			}
+		});
+		panelControls.add(btnToggleView);
+
+		lblView = new JLabel("Front");
+		lblView.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		panelControls.add(lblView);
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				CardManager.AddCard(); // we add a new card
+				ImageSnip imageSnip = new ImageSnip(
+						"D:/Projects/Arabic/FrequencyDictParser/workspace/CardCreator/images/screenshot.png",
+						_mainForm);
+				imageSnip.setVisible(true);
+			}
+		});
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
 				
-						JButton btnNewButton_1 = new JButton("Send to new frame");
-						panelControls.add(btnNewButton_1);
-						btnNewButton_1.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent arg0) {
-								ImageSnip imageSnip = new ImageSnip(
-										"D:/Projects/Arabic/FrequencyDictParser/workspace/CardCreator/images/screenshot.png",
-										_mainForm);
-								imageSnip.setVisible(true);
-							}
-						});
-				btnNewButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						BufferedImage image;
-						try {
-							image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-
-							String path = executionPath + "/images";
-							File dir = new File(path);
-							if (!dir.exists()) {
-								dir.mkdir();
-							}
-							ImageIO.write(image, "png", new File(path + "screenshot.png"));
-						} catch (HeadlessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (AWTException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					}
-				});
-
+				BufferedImage image;
+				try {
+					setExtendedState(JFrame.ICONIFIED);  //hide while taking the screenshot!!
 		
+					image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+					setExtendedState(JFrame.NORMAL);  //now show yo self
+					String path = executionPath + "/images/";
+					File dir = new File(path);
+					if (!dir.exists()) {
+						dir.mkdir();
+					}
+					ImageIO.write(image, "png", new File(path + "screenshot2.png"));
+				} catch (HeadlessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (AWTException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		});
+
 		getContentPane().add(panelPreview, BorderLayout.CENTER);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -142,6 +163,12 @@ public class MainForm extends JFrame implements ActionListener {
 
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mnFile.add(mntmExit);
+
+		JMenu mnEdit = new JMenu("Edit");
+		menuBar.add(mnEdit);
+
+		JMenuItem mntmUndo = new JMenuItem("Undo");
+		mnEdit.add(mntmUndo);
 
 		File configFile = new File("config.properties");
 
@@ -160,19 +187,40 @@ public class MainForm extends JFrame implements ActionListener {
 			// I/O error
 		}
 		// this.setSize(sizeX, sizeY);
-		this.setSize(340, 401);
+		this.setSize(356, 401);
 		this.setLocation(locX, locY);
 	}
 
-	Card card = new Card();
 	public void SendImage(BufferedImage img, int height, int width) {
-		
-		card.AddFront(img, height, width);
-		
-		panelPreview.RefreshView(card.getFront());
-//		ImageIcon icon = new ImageIcon();
-//		icon.setImage(img);
-//		JOptionPane.showMessageDialog(null, icon);
+		if (frontview) {
+			CardManager.getCurrentCard().AddFront(img, height, width);
+			panelPreview.RefreshView(CardManager.getCurrentCard().getFront());
+		} else {
+			CardManager.getCurrentCard().AddBack(img, height, width);
+			panelPreview.RefreshView(CardManager.getCurrentCard().getBack());
+		}
+
+	}
+
+	private void RefreshView() {
+		if (frontview) {
+			panelPreview.RefreshView(CardManager.getCurrentCard().getFront());
+		} else {
+
+			panelPreview.RefreshView(CardManager.getCurrentCard().getBack());
+		}
+	}
+
+	private void ToggleView() {
+
+		this.frontview = !this.frontview; // toggle that flag
+
+		if (this.frontview) {
+			this.lblView.setText("Front");
+		} else {
+			this.lblView.setText("Back");
+		}
+		RefreshView();
 	}
 
 	@Override
