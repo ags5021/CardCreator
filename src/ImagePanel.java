@@ -41,8 +41,8 @@ public class ImagePanel extends JPanel {
 		}
 	}
 
-	public void SendImage(BufferedImage img) {
-		_imageSnip.SendImage(img);
+	public void SendImage(BufferedImage img, int height, int width) {
+		_imageSnip.SendImage(img, height, width);
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class ImagePanel extends JPanel {
 			// we add +1 (and -1) here so we do not include the red line in the
 			// image
 			BufferedImage out = image.getSubimage(mouseX + 1, mouseY + 1, width - 1, height - 1);
-			SendImage(out);
+			SendImage(out, height, width);
 
 			mouseX = 0;
 			mouseY = 0;

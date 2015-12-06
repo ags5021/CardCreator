@@ -23,9 +23,9 @@ public class ImageSnip extends JFrame {
 		_mainForm = mainForm;
 	}
 
-	public void SendImage(BufferedImage img)
+	public void SendImage(BufferedImage img, int height, int width)
 	{
-		_mainForm.SendImage(img);
+		_mainForm.SendImage(img, height, width);
 	}
 	
 	public static void main(String[] args) {

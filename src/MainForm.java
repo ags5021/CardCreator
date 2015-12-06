@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import javax.swing.JFrame;
@@ -13,17 +14,16 @@ import javax.swing.JPanel;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.HeadlessException;
+import java.awt.List;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -50,6 +50,9 @@ public class MainForm extends JFrame implements ActionListener {
 	private String executionPath = System.getProperty("user.dir");
 	private static MainForm _mainForm;
 
+	private PreviewPanel panelPreview = new PreviewPanel();
+
+	
 	public MainForm() {
 		_mainForm = this;
 		setMinimumSize(new Dimension(50, 50));
@@ -84,53 +87,52 @@ public class MainForm extends JFrame implements ActionListener {
 			}
 		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Arabic Screen Capture\r\n");
+		setTitle("Card Creator");
 
-		JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.NORTH);
-
-		JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, BorderLayout.CENTER);
-
-		JButton btnNewButton = new JButton("New button");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				BufferedImage image;
-				try {
-					image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-
-					String path = executionPath + "/images";
-					File dir = new File(path);
-					if (!dir.exists()) {
-						dir.mkdir();
-					}
-					ImageIO.write(image, "png", new File(path + "screenshot.png"));
-				} catch (HeadlessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (AWTException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		});
-		panel_1.add(btnNewButton);
-
-		JButton btnNewButton_1 = new JButton("Send to new frame");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				ImageSnip imageSnip = new ImageSnip(
-						"D:/Projects/Arabic/FrequencyDictParser/workspace/CardCreator/images/screenshot.png",
-						_mainForm);
-				imageSnip.setVisible(true);
-			}
-		});
+		JPanel panelControls = new JPanel();
+		getContentPane().add(panelControls, BorderLayout.NORTH);
 		
-		panel_1.add(btnNewButton_1);
+				JButton btnNewButton = new JButton("New button");
+				panelControls.add(btnNewButton);
+				
+						JButton btnNewButton_1 = new JButton("Send to new frame");
+						panelControls.add(btnNewButton_1);
+						btnNewButton_1.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) {
+								ImageSnip imageSnip = new ImageSnip(
+										"D:/Projects/Arabic/FrequencyDictParser/workspace/CardCreator/images/screenshot.png",
+										_mainForm);
+								imageSnip.setVisible(true);
+							}
+						});
+				btnNewButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						BufferedImage image;
+						try {
+							image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+
+							String path = executionPath + "/images";
+							File dir = new File(path);
+							if (!dir.exists()) {
+								dir.mkdir();
+							}
+							ImageIO.write(image, "png", new File(path + "screenshot.png"));
+						} catch (HeadlessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AWTException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+				});
+
+		
+		getContentPane().add(panelPreview, BorderLayout.CENTER);
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -157,19 +159,20 @@ public class MainForm extends JFrame implements ActionListener {
 		} catch (IOException ex) {
 			// I/O error
 		}
-
 		// this.setSize(sizeX, sizeY);
 		this.setSize(340, 401);
 		this.setLocation(locX, locY);
-
 	}
 
-	public void SendImage(BufferedImage img) {
-		System.out.println("MAIN FORM");
-
-		ImageIcon icon = new ImageIcon();
-		icon.setImage(img);
-		JOptionPane.showMessageDialog(null, icon);
+	public void SendImage(BufferedImage img, int height, int width) {
+		Card card = new Card();
+		card.AddFront(img, height, width);
+		card.AddFront(img, height, width);
+		
+		panelPreview.RefreshView(card.getFront());
+//		ImageIcon icon = new ImageIcon();
+//		icon.setImage(img);
+//		JOptionPane.showMessageDialog(null, icon);
 	}
 
 	@Override
