@@ -1,20 +1,16 @@
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 public class ImagePanel extends JPanel {
 
@@ -31,9 +27,10 @@ public class ImagePanel extends JPanel {
 	private int height;
 	private int width;
 
-	private boolean selectionMade = false;
+	private ImageSnip _imageSnip;
 
-	public ImagePanel(String file) {
+	public ImagePanel(String file, ImageSnip imageSnip) {
+		_imageSnip = imageSnip;
 		this.addMouseListener(new MouseHandler());
 		this.addMouseMotionListener(new MouseMotionHandler());
 		try {
@@ -42,22 +39,20 @@ public class ImagePanel extends JPanel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
 
+	public void SendImage(BufferedImage img) {
+		_imageSnip.SendImage(img);
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		g.drawImage(image, 0, 0, null); // see javadoc for more info on the
-										// parameters
+		g.drawImage(image, 0, 0, null);
 		g.setColor(Color.red);
 		g.drawRect(mouseX, mouseY, width, height);
 
-		if (selectionMade)
-		{
-			
-		}
 	}
 
 	private class MouseHandler extends MouseAdapter {
@@ -67,7 +62,6 @@ public class ImagePanel extends JPanel {
 			// TODO Auto-generated method stub
 			startX = e.getX();
 			startY = e.getY();
-			selectionMade = false;
 			e.getComponent().repaint();
 		}
 
@@ -78,22 +72,11 @@ public class ImagePanel extends JPanel {
 			BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 			Graphics2D g2 = image.createGraphics();
 			paint(g2);
-			//we add +1 (and -1) here so we do not include the red line in the image
-			BufferedImage out = image.getSubimage(mouseX+1, mouseY+1, width-1, height-1); 
-			ImageIcon icon = new ImageIcon();
+			// we add +1 (and -1) here so we do not include the red line in the
+			// image
+			BufferedImage out = image.getSubimage(mouseX + 1, mouseY + 1, width - 1, height - 1);
+			SendImage(out);
 
-			try {
-				
-				Image img = ImageIO.read(
-						new File("D:/Projects/Arabic/FrequencyDictParser/workspace/CardCreator/images/screenshot.png"));
-				icon.setImage(out);
-				JOptionPane.showMessageDialog(null, icon);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
-			selectionMade = true;
 			mouseX = 0;
 			mouseY = 0;
 			height = 0;
