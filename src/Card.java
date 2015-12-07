@@ -1,4 +1,4 @@
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public class Card {
 
@@ -12,12 +12,22 @@ public class Card {
 		_id = id;
 	}
 	
-	public void AddFront(Image img, int height, int width)
+	public void UndoFront()
+	{
+		_front.UndoLastImage();
+	}
+	
+	public void UndoBack()
+	{
+		_back.UndoLastImage();
+	}
+	
+	public void AddFront(BufferedImage img, int height, int width)
 	{
 		_front.AddImage(img, height, width);
 	}
 	
-	public void AddBack(Image img, int height, int width)
+	public void AddBack(BufferedImage img, int height, int width)
 	{
 		_back.AddImage(img, height, width);
 	}

@@ -1,22 +1,23 @@
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public class ImageItem {
 
-	private Image _image;
+	private BufferedImage _image;
 	private int height;
 	private int width;
 	
-	public ImageItem(Image img, int height, int width)
+	public ImageItem(BufferedImage img, int height, int width)
 	{
 		this._image = img;
 		this.height = height;
 		this.width = width;
 	}
 	
-	public Image get_image() {
+	public BufferedImage get_image() {
 		return _image;
 	}
-	public void set_image(Image _image) {
+	public void set_image(BufferedImage _image) {
 		this._image = _image;
 	}
 	

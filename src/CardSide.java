@@ -1,11 +1,12 @@
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
 public class CardSide {
 
 	LinkedList<ImageItem> _list = new LinkedList<ImageItem>();
 	
-	 public void AddImage(Image img, int height, int width)
+	 public void AddImage(BufferedImage img, int height, int width)
 	 {
 		 _list.addLast(new ImageItem(img, height, width));
 		 
@@ -13,7 +14,10 @@ public class CardSide {
 
 	 public void UndoLastImage()
 	 {
-		 _list.removeLast();
+		 if (_list.size() != 0)  // "nice people" clicking undo when there isnt anything to undo!
+		 {
+			 _list.removeLast();
+		 }
 	 }
 	 
 	 public LinkedList<ImageItem> getImageItems()
