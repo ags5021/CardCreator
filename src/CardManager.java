@@ -2,7 +2,7 @@
 public class CardManager {
 	private static CardManager instance = null;
 	
-	private static  Card _card = new Card(1);
+	private static  Card _card = new Card(0);
 	private static int currentCardID = 0;
 	
 	protected CardManager() {
