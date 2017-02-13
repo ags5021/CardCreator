@@ -1,4 +1,7 @@
 # CardCreator
+
+Note: This is a quick and dirty implementation and serves its purpose...if you would like a feature created, please post it as an issue
+
 Image Card Creator for Anki
 
 Demonstration: https://youtu.be/EYuEiQjSow8
