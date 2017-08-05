@@ -46,6 +46,16 @@ import java.awt.Font;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import javax.swing.JTextField;
+import java.awt.Component;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class MainForm extends JFrame implements ActionListener {
 	/**
@@ -66,16 +76,23 @@ public class MainForm extends JFrame implements ActionListener {
 	private String executionPath = System.getProperty("user.dir");
 	private static MainForm _mainForm;
 
-	private boolean frontview = true;
-
-	private PreviewPanel panelPreview = new PreviewPanel();
-	private JLabel lblView;
+	private enum VIEW {FRONT, BACK, ALL};
+	private VIEW _view = VIEW.FRONT;
+	
+	private PreviewPanel panelBack = new PreviewPanel();
+	private PreviewPanel panelAll = new PreviewPanel();
+	
+	private PreviewPanel panelFront = new PreviewPanel();
 	private JButton btnNewCard;
 	private JButton btnSave;
-	private JButton btnToggleView;
 	private ImageSnip imageSnip;
+	private JTextField textFieldNumber;
+	
+	JButton btnBack = new JButton("Back");
+	JButton btnFront = new JButton("Front");
+	JButton btnAll = new JButton("All");
 
-	public MainForm() {
+	public MainForm() {		
 		_mainForm = this;
 		setMinimumSize(new Dimension(350, 350));
 		setAlwaysOnTop(true);
@@ -111,27 +128,39 @@ public class MainForm extends JFrame implements ActionListener {
 		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Card Creator");
+		getContentPane().setLayout(null);
 
 		JPanel panelControls = new JPanel();
-		getContentPane().add(panelControls, BorderLayout.NORTH);
+		panelControls.setBounds(0, 0, 334, 33);
+		getContentPane().add(panelControls);
 		panelControls.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		textFieldNumber = new JTextField();
+		textFieldNumber.setEditable(false);
+		textFieldNumber.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				CardManager.setCurrentCardID(Integer.parseInt(textFieldNumber.getText()));
+				textFieldNumber.setText(CardManager.getCurrentCardID() + ""); // lazy
+			}
+		});
+		textFieldNumber.setPreferredSize(new Dimension(5, 20));
+		textFieldNumber.setText("0");
+		textFieldNumber.setSize(new Dimension(5, 20));
+		textFieldNumber.setMaximumSize(new Dimension(4, 20));
+		panelControls.add(textFieldNumber);
+		textFieldNumber.setColumns(4);
 
 		btnNewCard = new JButton("New Card");
 		panelControls.add(btnNewCard);
-		
-				btnToggleView = new JButton("Toggle View");
-				btnToggleView.setEnabled(false);
-				btnToggleView.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ToggleView();
-					}
-				});
-				panelControls.add(btnToggleView);
-		
-				lblView = new JLabel("Front");
-				lblView.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				panelControls.add(lblView);
 
+		btnAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				_view = VIEW.ALL;
+				btnAll.setBackground(Color.GREEN);
+				btnFront.setBackground(Color.getColor("#f0f0f0"));
+				btnBack.setBackground(Color.getColor("#f0f0f0"));
+			}
+		});
 		btnSave = new JButton("SaveCard");
 		btnSave.setEnabled(false);
 		panelControls.add(btnSave);
@@ -139,12 +168,11 @@ public class MainForm extends JFrame implements ActionListener {
 			public void actionPerformed(ActionEvent arg0) {
 				String path = executionPath + "/images/";
 				
-				//String filePath = executionPath + "/AnkiList.txt";
-				
 				// should have used string builder but we shall save that for a refactor
 				try(PrintWriter fileWrite = new PrintWriter(new BufferedWriter(new FileWriter("AnkiList.txt", true)))) {
 
-			
+				fileWrite.print(CardManager.getCurrentCardID());
+				fileWrite.print("\t");
 				// card image format is "CardCreator_CardID_<Front/Back>_ImageOrderNum_RANDOMHASH"  
 				// we get the front card and save each image
 				int i = 0;
@@ -152,7 +180,7 @@ public class MainForm extends JFrame implements ActionListener {
 				{
 					//we just write image
 					String imageName = "CardCreator_"+CardManager.getCurrentCardID()+"_FRONT_" + Integer.toString(i) + "_"+ getSaltString(5) + ".png";
-					fileWrite.print("<img src='" + imageName + "'/>   ");
+					fileWrite.print("<img src='" + imageName + "'/>\n");
 					File file = new File(path + imageName);
 					try {
 						ImageIO.write(img.get_image(), "png", file);
@@ -162,12 +190,13 @@ public class MainForm extends JFrame implements ActionListener {
 					}
 					i++;
 				}
+				// --------------------- BACK ------------------------
 				fileWrite.print("\t");
 				i = 0;
 				for (ImageItem img: CardManager.getCard().getBack().getImageItems())
 				{
 					String imageName = "CardCreator_"+CardManager.getCurrentCardID()+"_BACK_"+Integer.toString(i) + "_"+ getSaltString(5) + ".png";
-					fileWrite.print("<img src='" + imageName + "'/>  ");
+					fileWrite.print("<img src='" + imageName + "'/>\n");
 					File file = new File(path + imageName);
 					try {
 						ImageIO.write(img.get_image(), "png", file);
@@ -177,14 +206,31 @@ public class MainForm extends JFrame implements ActionListener {
 					}
 					i++;
 				}
+				// --------------------- ALL ------------------------
+				fileWrite.print("\t");
+				i = 0;
+				for (ImageItem img: CardManager.getCard().getAll().getImageItems())
+				{
+					String imageName = "CardCreator_"+CardManager.getCurrentCardID()+"_ALL_"+Integer.toString(i) + "_"+ getSaltString(5) + ".png";
+					fileWrite.print("<img src='" + imageName + "'/>\n");
+					File file = new File(path + imageName);
+					try {
+						ImageIO.write(img.get_image(), "png", file);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					i++;
+				}				
+				
 				fileWrite.print("\n");			
 				}catch (IOException e) {
 				    //exception handling left as an exercise for the reader
 				}
+				panelFront.setVisible(false);
+				panelBack.setVisible(false);
+				panelAll.setVisible(false);
 				DisplayNew();
-				frontview = true;
-				lblView.setText("Front");
-				panelPreview.setVisible(false);
 				imageSnip.dispatchEvent(new WindowEvent(imageSnip, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -205,6 +251,7 @@ public class MainForm extends JFrame implements ActionListener {
 					File file = new File(path + "ACardCreatorscreenshot.png");
 					ImageIO.write(image, "png", file);
 					CardManager.CreateCard(); // we add a new card
+					textFieldNumber.setText(CardManager.getCurrentCardID() + ""); // lazy
 					imageSnip = new ImageSnip(file.getPath(),_mainForm);
 					imageSnip.setVisible(true);
 				} catch (HeadlessException e) {
@@ -216,14 +263,54 @@ public class MainForm extends JFrame implements ActionListener {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}				
 				DisplaySaveToggle();
-				panelPreview.RefreshView(CardManager.getCard().getFront());	
-				panelPreview.setVisible(true);
+				RefreshView();
+				panelFront.setVisible(true);
+				panelBack.setVisible(true);
+				panelAll.setVisible(true);
+				btnFront.doClick(); 
 			}
 		});
 
-		getContentPane().add(panelPreview, BorderLayout.CENTER);
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				_view = VIEW.BACK;
+				btnBack.setBackground(Color.GREEN);
+				btnFront.setBackground(Color.getColor("#f0f0f0"));
+				btnAll.setBackground(Color.getColor("#f0f0f0"));
+			}
+		});
+		btnBack.setBounds(107, 227, 89, 23);
+		getContentPane().add(btnBack);
+		
+
+		panelBack.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelBack.setBounds(0, 252, 343, 172);
+		getContentPane().add(panelBack);
+		
+
+		btnAll.setBounds(107, 426, 89, 23);
+		getContentPane().add(btnAll);
+
+		panelAll.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelAll.setBounds(0, 449, 343, 200);
+		getContentPane().add(panelAll);
+		
+
+		btnFront.setBounds(117, 34, 67, 23);
+		getContentPane().add(btnFront);
+		panelFront.setBounds(0, 57, 343, 167);
+		getContentPane().add(panelFront);
+		panelFront.setBorder(new LineBorder(new Color(0, 0, 0)));
+		btnFront.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				_view = VIEW.FRONT;
+				btnFront.setBackground(Color.GREEN);
+				btnBack.setBackground(Color.getColor("#f0f0f0"));
+				btnAll.setBackground(Color.getColor("#f0f0f0"));
+			}
+		});
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -243,6 +330,7 @@ public class MainForm extends JFrame implements ActionListener {
 				try {
 					CardManager.setCurrentCardID(
 							Integer.parseInt(JOptionPane.showInputDialog(_mainForm, "Enter the Current card number")));
+					textFieldNumber.setText(CardManager.getCurrentCardID() + ""); // lazy
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -253,12 +341,15 @@ public class MainForm extends JFrame implements ActionListener {
 		JMenuItem mntmUndo = new JMenuItem("Undo");
 		mntmUndo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (frontview) {
+				if (_view == VIEW.FRONT) {
 					CardManager.getCard().UndoFront();
-					panelPreview.RefreshView(CardManager.getCard().getFront());
-				} else {
+					panelFront.RefreshView(CardManager.getCard().getFront());
+				} else if (_view == VIEW.BACK) {
 					CardManager.getCard().UndoBack();
-					panelPreview.RefreshView(CardManager.getCard().getBack());
+					panelBack.RefreshView(CardManager.getCard().getBack());
+				} else if (_view == VIEW.ALL) {
+					CardManager.getCard().UndoAll();
+					panelAll.RefreshView(CardManager.getCard().getAll());
 				}
 			}
 		});
@@ -281,6 +372,8 @@ public class MainForm extends JFrame implements ActionListener {
 			locX = Integer.parseInt(props.getProperty(WINDOW_LOCATION_X));
 			locY = Integer.parseInt(props.getProperty(WINDOW_LOCATION_Y));
 			CardManager.setCurrentCardID(Integer.parseInt(props.getProperty(CURRENT_CARD_ID)));
+			textFieldNumber.setText(CardManager.getCurrentCardID() + "");
+			
 			reader.close();
 		} catch (FileNotFoundException ex) {
 			// file does not exist
@@ -288,40 +381,44 @@ public class MainForm extends JFrame implements ActionListener {
 			// I/O error
 		}
 		// this.setSize(sizeX, sizeY);
-		this.setSize(sizeX, sizeY);
+		this.setSize(369, 709);
 		this.setLocation(locX, locY);
+		
+	}	
+	public void ChangeActiveButton(int key)
+	{	
+		  if ((key == KeyEvent.VK_1))
+		  {
+			 btnFront.doClick(); 
+		  }
+		  else if ((key == KeyEvent.VK_2))
+		  {
+			 btnBack.doClick(); 
+		  }
+		  else if ((key == KeyEvent.VK_3))
+		  {
+			 btnAll.doClick(); 
+		  }
 	}
-
+	
 	public void SendImage(BufferedImage img, int height, int width) {
-		if (frontview) {
+		if (_view == VIEW.FRONT) {
 			CardManager.getCard().AddFront(img, height, width);
-			panelPreview.RefreshView(CardManager.getCard().getFront());
-		} else {
+			panelFront.RefreshView(CardManager.getCard().getFront());
+		} else if (_view == VIEW.BACK) {
 			CardManager.getCard().AddBack(img, height, width);
-			panelPreview.RefreshView(CardManager.getCard().getBack());
+			panelBack.RefreshView(CardManager.getCard().getBack());
+		} else if (_view == VIEW.ALL) {
+			CardManager.getCard().AddAll(img, height, width);
+			panelAll.RefreshView(CardManager.getCard().getAll());
 		}
 
 	}
 
 	private void RefreshView() {
-		if (frontview) {
-			panelPreview.RefreshView(CardManager.getCard().getFront());
-		} else {
-
-			panelPreview.RefreshView(CardManager.getCard().getBack());
-		}
-	}
-
-	private void ToggleView() {
-
-		this.frontview = !this.frontview; // toggle that flag
-
-		if (this.frontview) {
-			this.lblView.setText("Front");
-		} else {
-			this.lblView.setText("Back");
-		}
-		RefreshView();
+		panelFront.RefreshView(CardManager.getCard().getFront());
+		panelBack.RefreshView(CardManager.getCard().getBack());
+		panelAll.RefreshView(CardManager.getCard().getAll());
 	}
 
 	@Override
@@ -337,13 +434,11 @@ public class MainForm extends JFrame implements ActionListener {
 	private void DisplayNew() {
 		btnNewCard.setEnabled(true);
 		btnSave.setEnabled(false);
-		btnToggleView.setEnabled(false);
 	}
 
 	private void DisplaySaveToggle() {
 		btnNewCard.setEnabled(false);
 		btnSave.setEnabled(true);
-		btnToggleView.setEnabled(true);
 	}
 	
 	protected String getSaltString(int num) {
@@ -358,5 +453,6 @@ public class MainForm extends JFrame implements ActionListener {
         return saltStr;
 
     }
+	
 
 }

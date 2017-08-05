@@ -25,7 +25,7 @@ public class CardManager {
 	public static void CreateCard()
 	{
 		//TODO: CHECK IF THAT ID ALREADY EXISTS
-		CardManager.currentCardID =+ 1; //increment the ID, yo
+		CardManager.currentCardID += 1; //increment the ID, yo
 		_card = new Card(currentCardID);
 	}
 
