@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 
@@ -92,8 +93,17 @@ public class MainForm extends JFrame implements ActionListener {
 	JButton btnFront = new JButton("Front");
 	JButton btnAll = new JButton("All");
 
-	public MainForm() {		
+	public MainForm() {
 		_mainForm = this;
+		this.setFocusable(true);
+		this.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int key = e.getKeyCode();
+				_mainForm.PerformKeyAction(key);
+			}
+		});	
+		
 		setMinimumSize(new Dimension(350, 350));
 		setAlwaysOnTop(true);
 		addComponentListener(new ComponentAdapter() {
@@ -176,14 +186,17 @@ public class MainForm extends JFrame implements ActionListener {
 				// card image format is "CardCreator_CardID_<Front/Back>_ImageOrderNum_RANDOMHASH"  
 				// we get the front card and save each image
 				int i = 0;
-				for (ImageItem img: CardManager.getCard().getFront().getImageItems())
+				// REVERSE DISPLAY then change card numbering
+				// card numbering..post event from textbox change
+				Iterator<ImageItem> imgItr = CardManager.getCard().getFront().getImageItems().descendingIterator();
+				while(imgItr.hasNext())
 				{
 					//we just write image
 					String imageName = "CardCreator_"+CardManager.getCurrentCardID()+"_FRONT_" + Integer.toString(i) + "_"+ getSaltString(5) + ".png";
-					fileWrite.print("<img src='" + imageName + "'/>\n");
+					fileWrite.print("<img src='" + imageName + "'/>");
 					File file = new File(path + imageName);
 					try {
-						ImageIO.write(img.get_image(), "png", file);
+						ImageIO.write(imgItr.next().get_image(), "png", file);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -196,7 +209,7 @@ public class MainForm extends JFrame implements ActionListener {
 				for (ImageItem img: CardManager.getCard().getBack().getImageItems())
 				{
 					String imageName = "CardCreator_"+CardManager.getCurrentCardID()+"_BACK_"+Integer.toString(i) + "_"+ getSaltString(5) + ".png";
-					fileWrite.print("<img src='" + imageName + "'/>\n");
+					fileWrite.print("<img src='" + imageName + "'/> ");
 					File file = new File(path + imageName);
 					try {
 						ImageIO.write(img.get_image(), "png", file);
@@ -212,7 +225,7 @@ public class MainForm extends JFrame implements ActionListener {
 				for (ImageItem img: CardManager.getCard().getAll().getImageItems())
 				{
 					String imageName = "CardCreator_"+CardManager.getCurrentCardID()+"_ALL_"+Integer.toString(i) + "_"+ getSaltString(5) + ".png";
-					fileWrite.print("<img src='" + imageName + "'/>\n");
+					fileWrite.print("<img src='" + imageName + "'/> ");
 					File file = new File(path + imageName);
 					try {
 						ImageIO.write(img.get_image(), "png", file);
@@ -232,6 +245,8 @@ public class MainForm extends JFrame implements ActionListener {
 				panelAll.setVisible(false);
 				DisplayNew();
 				imageSnip.dispatchEvent(new WindowEvent(imageSnip, WindowEvent.WINDOW_CLOSING));
+				CardManager.IncrementCard();
+				textFieldNumber.setText(CardManager.getCurrentCardID() + ""); // lazy
 			}
 		});
 		btnNewCard.addActionListener(new ActionListener() {
@@ -385,7 +400,7 @@ public class MainForm extends JFrame implements ActionListener {
 		this.setLocation(locX, locY);
 		
 	}	
-	public void ChangeActiveButton(int key)
+	public void PerformKeyAction(int key)
 	{	
 		  if ((key == KeyEvent.VK_1))
 		  {
@@ -398,7 +413,25 @@ public class MainForm extends JFrame implements ActionListener {
 		  else if ((key == KeyEvent.VK_3))
 		  {
 			 btnAll.doClick(); 
+		  } 
+		  else if ((key == KeyEvent.VK_S))
+		  {
+			  btnSave.doClick();
 		  }
+		  else if ((key == KeyEvent.VK_N))
+		  {
+			  btnNewCard.doClick();
+		  }
+		  else if ((key == KeyEvent.VK_W))
+		  {
+			  CardManager.IncrementCard();
+			  textFieldNumber.setText(CardManager.getCurrentCardID() + "");
+		  }
+		  else if ((key == KeyEvent.VK_Q))
+		  {
+			  CardManager.DecrementCard();
+			  textFieldNumber.setText(CardManager.getCurrentCardID() + "");
+		  }	  
 	}
 	
 	public void SendImage(BufferedImage img, int height, int width) {

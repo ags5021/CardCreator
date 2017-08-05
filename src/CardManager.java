@@ -22,10 +22,20 @@ public class CardManager {
 		return _card;
 	}
 	
-	public static void CreateCard()
+	public static void IncrementCard()
 	{
 		//TODO: CHECK IF THAT ID ALREADY EXISTS
 		CardManager.currentCardID += 1; //increment the ID, yo
+	}
+	
+	public static void DecrementCard()
+	{
+		//TODO: CHECK IF THAT ID ALREADY EXISTS
+		CardManager.currentCardID -= 1; //increment the ID, yo
+	}
+	
+	public static void CreateCard()
+	{
 		_card = new Card(currentCardID);
 	}
 

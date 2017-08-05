@@ -20,7 +20,7 @@ public class ImageSnip extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int key = e.getKeyCode();
-				_mainForm.ChangeActiveButton(key);
+				_mainForm.PerformKeyAction(key);
 			}
 		});
 		setMinimumSize(new Dimension(70, 70));
@@ -32,7 +32,7 @@ public class ImageSnip extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 					int key = e.getKeyCode();
-					_mainForm.ChangeActiveButton(key);
+					_mainForm.PerformKeyAction(key);
 			}
 		});
 		panel.setMinimumSize(new Dimension(100, 100));
