@@ -162,6 +162,13 @@ public class MainForm extends JFrame implements ActionListener {
 
 		btnNewCard = new JButton("New Card");
 		panelControls.add(btnNewCard);
+		btnAll.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int key = e.getKeyCode();
+				_mainForm.PerformKeyAction(key);
+			}
+		});
 
 		btnAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -287,6 +294,13 @@ public class MainForm extends JFrame implements ActionListener {
 				btnFront.doClick(); 
 			}
 		});
+		btnBack.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int key = e.getKeyCode();
+				_mainForm.PerformKeyAction(key);
+			}
+		});
 
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -311,6 +325,13 @@ public class MainForm extends JFrame implements ActionListener {
 		panelAll.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panelAll.setBounds(0, 449, 343, 200);
 		getContentPane().add(panelAll);
+		btnFront.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int key = e.getKeyCode();
+				_mainForm.PerformKeyAction(key);
+			}
+		});
 		
 
 		btnFront.setBounds(117, 34, 67, 23);
